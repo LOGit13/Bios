@@ -24,54 +24,53 @@ if np.any(sample_intervals_ms <= 0):
 sampling_frequencies_hz = 1000 / sample_intervals_ms
 mean_frequency_hz = np.mean(sampling_frequencies_hz)
 std_frequency_hz = np.std(sampling_frequencies_hz, ddof=1)
-overall_frequency_hz = (
-    len(sample_intervals_ms) * 1000 / (timestamps_ms[-1] - timestamps_ms[0])
+time_seconds = (
+    (timestamps_ms[:-1] + timestamps_ms[1:]) / 2 - timestamps_ms[0]
+) / 1000
+cumulative_mean_hz = np.cumsum(sampling_frequencies_hz) / np.arange(
+    1, len(sampling_frequencies_hz) + 1
 )
+deviations_hz = sampling_frequencies_hz - mean_frequency_hz
 
-time_seconds = (timestamps_ms - timestamps_ms[0]) / 1000
-interval_midpoints_seconds = (time_seconds[:-1] + time_seconds[1:]) / 2
-
-print(f"Ausgewertete Abtastintervalle: {len(sample_intervals_ms)}")
-print(
-    f"Abtastfrequenz: {mean_frequency_hz:.2f} "
-    f"+/- {std_frequency_hz:.2f} Hz"
+fig, (mean_ax, deviation_ax) = plt.subplots(
+    2, 1, figsize=(10, 7), sharex=True
 )
-print(
-    f"Abtastintervall: {np.mean(sample_intervals_ms):.3f} "
-    f"+/- {np.std(sample_intervals_ms, ddof=1):.3f} ms"
-)
-print(f"Gesamt-Abtastrate über die Messdauer: {overall_frequency_hz:.2f} Hz")
-
-plt.figure(figsize=(14, 6))
-plt.axhspan(
-    mean_frequency_hz - std_frequency_hz,
-    mean_frequency_hz + std_frequency_hz,
-    color="tab:red",
-    alpha=0.15,
-    label="Mittelwert +/- 1 Standardabweichung",
-)
-plt.plot(
-    interval_midpoints_seconds,
-    sampling_frequencies_hz,
-    ".",
+mean_ax.plot(
+    time_seconds,
+    cumulative_mean_hz,
     color="tab:blue",
-    alpha=0.5,
-    markersize=3,
-    label="Frequenz je Abtastintervall",
+    label="Laufender Mittelwert",
 )
-plt.axhline(
+mean_ax.axhline(
     mean_frequency_hz,
-    color="tab:red",
-    linewidth=2,
-    label=f"Mittelwert: {mean_frequency_hz:.2f} Hz",
+    color="tab:orange",
+    linestyle="--",
+    label=f"Gesamtmittelwert: {mean_frequency_hz:.2f} Hz",
 )
-plt.title(
-    "Aufgabe 8 – Abtastfrequenz: "
-    f"{mean_frequency_hz:.2f} +/- {std_frequency_hz:.2f} Hz"
+mean_ax.set_title("Aufgabe 8 – Abtastfrequenz aus Aufgabe 6")
+mean_ax.set_ylabel("Mittelwert [Hz]")
+mean_ax.grid(True, alpha=0.4)
+mean_ax.legend()
+
+deviation_ax.fill_between(
+    time_seconds,
+    -std_frequency_hz,
+    std_frequency_hz,
+    color="tab:orange",
+    alpha=0.15,
+    label=f"+/- 1 Standardabweichung ({std_frequency_hz:.2f} Hz)",
 )
-plt.xlabel("Zeit [s]")
-plt.ylabel("Abtastfrequenz [Hz]")
-plt.grid(True)
-plt.legend()
-plt.tight_layout()
+deviation_ax.plot(
+    time_seconds,
+    deviations_hz,
+    color="tab:blue",
+    linewidth=0.8,
+    label="Abweichung je Messintervall",
+)
+deviation_ax.axhline(0, color="black", linewidth=1)
+deviation_ax.set_xlabel("Zeit [s]")
+deviation_ax.set_ylabel("Abweichung [Hz]")
+deviation_ax.grid(True, alpha=0.4)
+deviation_ax.legend()
+fig.tight_layout()
 plt.show()
