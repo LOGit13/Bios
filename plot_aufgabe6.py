@@ -1,23 +1,21 @@
-from pathlib import Path
-
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-DATA_FILE = Path(__file__).with_name("Aufgabe6.txt")
-COUNTS_PER_G = 512  # MMA8452Q with SCALE_4G
+datei_pfad = __file__.replace("plot_aufgabe6.py", "Aufgabe6.txt")
+counts_pro_g = 512
 
-data = np.loadtxt(DATA_FILE)
-if data.ndim != 2 or data.shape[1] != 4:
+messdaten = np.loadtxt(datei_pfad)
+if messdaten.ndim != 2 or messdaten.shape[1] != 4:
     raise ValueError("Die Messdatei muss vier Spalten enthalten: X, Y, Z und Zeit in ms.")
 
-time_seconds = (data[:, 3] - data[0, 3]) / 1000
-acceleration_g = data[:, :3] / COUNTS_PER_G
+zeit_sekunden = (messdaten[:, 3] - messdaten[0, 3]) / 1000
+beschleunigung_g = messdaten[:, :3] / counts_pro_g
 
 plt.figure(figsize=(10, 5))
-plt.plot(time_seconds, acceleration_g[:, 0], label="X-Achse")
-plt.plot(time_seconds, acceleration_g[:, 1], label="Y-Achse")
-plt.plot(time_seconds, acceleration_g[:, 2], label="Z-Achse")
+plt.plot(zeit_sekunden, beschleunigung_g[:, 0], label="X-Achse")
+plt.plot(zeit_sekunden, beschleunigung_g[:, 1], label="Y-Achse")
+plt.plot(zeit_sekunden, beschleunigung_g[:, 2], label="Z-Achse")
 plt.title("Aufgabe 6 – Beschleunigung über die gesamte Messzeit")
 plt.xlabel("Zeit [s]")
 plt.ylabel("Beschleunigung [g]")

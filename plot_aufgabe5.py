@@ -1,10 +1,8 @@
-from pathlib import Path
-
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-DATA_FILE = Path(__file__).with_name("Aufgabe5.txt")
+DATA_FILE = __file__.replace("plot_aufgabe5.py", "Aufgabe5.txt")
 COUNTS_PER_G = 512  # MMA8452Q with SCALE_4G
 PLOT_DURATION_SECONDS = 4
 

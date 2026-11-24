@@ -1,45 +1,44 @@
-from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-DATA_FILE = Path(__file__).with_name("Aufgabe6.txt")
-COUNTS_PER_G = 512  # MMA8452Q with SCALE_4G
+datei_pfad = __file__.replace("plot_aufgabe7.py", "Aufgabe6.txt")
+zaehlwerte_pro_g = 512
 
 # Fenstergröße des Tiefpassfilters
-WINDOW_SIZE = 25
+fenstergroesse = 25
 
 # Daten laden
-data = np.loadtxt(DATA_FILE)
+messdaten = np.loadtxt(datei_pfad)
 
-if data.ndim != 2 or data.shape[1] != 4:
+if messdaten.ndim != 2 or messdaten.shape[1] != 4:
     raise ValueError(
         "Die Messdatei muss vier Spalten enthalten: X, Y, Z und Zeit in ms."
     )
 
 # Zeit in Sekunden
-time_seconds = (data[:, 3] - data[0, 3]) / 1000
+zeit_sekunden = (messdaten[:, 3] - messdaten[0, 3]) / 1000
 
 # Rohdaten in g
-acceleration_g = data[:, :3] / COUNTS_PER_G
+beschleunigung_g = messdaten[:, :3] / zaehlwerte_pro_g
 
 
-def moving_average(signal, window):
-    kernel = np.ones(window) / window
-    return np.convolve(signal, kernel, mode="same")
+def gleitender_mittelwert(messreihe, fenstergroesse):
+    mittelungsfenster = np.ones(fenstergroesse) / fenstergroesse
+    return np.convolve(messreihe, mittelungsfenster, mode="same")
 
 
 # Tiefpassfilter auf alle Achsen anwenden
-x_filtered = moving_average(acceleration_g[:, 0], WINDOW_SIZE)
-y_filtered = moving_average(acceleration_g[:, 1], WINDOW_SIZE)
-z_filtered = moving_average(acceleration_g[:, 2], WINDOW_SIZE)
+x_gefiltert = gleitender_mittelwert(beschleunigung_g[:, 0], fenstergroesse)
+y_gefiltert = gleitender_mittelwert(beschleunigung_g[:, 1], fenstergroesse)
+z_gefiltert = gleitender_mittelwert(beschleunigung_g[:, 2], fenstergroesse)
 
 # Plot
 plt.figure(figsize=(14, 7))
 
 # Ungefilterte Daten
 plt.plot(
-    time_seconds,
-    acceleration_g[:, 0],
+    zeit_sekunden,
+    beschleunigung_g[:, 0],
     "--",
     alpha=0.8,
     color="lightblue",
@@ -47,8 +46,8 @@ plt.plot(
 )
 
 plt.plot(
-    time_seconds,
-    acceleration_g[:, 1],
+    zeit_sekunden,
+    beschleunigung_g[:, 1],
     "--",
     alpha=1.0,
     color="moccasin",
@@ -56,8 +55,8 @@ plt.plot(
 )
 
 plt.plot(
-    time_seconds,
-    acceleration_g[:, 2],
+    zeit_sekunden,
+    beschleunigung_g[:, 2],
     "--",
     alpha=0.8,
     color="lightgreen",
@@ -66,24 +65,24 @@ plt.plot(
 
 # Gefilterte Daten
 plt.plot(
-    time_seconds,
-    x_filtered,
+    zeit_sekunden,
+    x_gefiltert,
     linewidth=2,
     color="tab:blue",
     label="X-Achse gefiltert"
 )
 
 plt.plot(
-    time_seconds,
-    y_filtered,
+    zeit_sekunden,
+    y_gefiltert,
     linewidth=2,
     color="tab:orange",
     label="Y-Achse gefiltert"
 )
 
 plt.plot(
-    time_seconds,
-    z_filtered,
+    zeit_sekunden,
+    z_gefiltert,
     linewidth=2,
     color="tab:green",
     label="Z-Achse gefiltert"
