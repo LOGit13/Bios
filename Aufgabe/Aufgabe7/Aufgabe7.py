@@ -1,5 +1,4 @@
 import os
-
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -96,6 +95,6 @@ plt.title("Aufgabe 7 – Vergleich von ungefilterten und gefilterten Beschleunig
 plt.xlabel("Zeit [s]")
 plt.ylabel("Beschleunigung [g]")
 plt.grid(True)
-plt.legend(ncol=2)
+plt.legend(ncol=2, loc="upper right")
 plt.tight_layout()
 plt.show()
