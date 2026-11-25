@@ -29,10 +29,22 @@ sample_intervals_ms = [
 if any(interval <= 0 for interval in sample_intervals_ms):
     raise ValueError("Die Zeitstempel müssen streng monoton ansteigen.")
 
+mean_interval_ms = mean(sample_intervals_ms)
+std_interval_ms = stdev(sample_intervals_ms)
+
 sampling_frequencies_hz = [1000 / interval for interval in sample_intervals_ms]
 mean_frequency_hz = mean(sampling_frequencies_hz)
 std_frequency_hz = stdev(sampling_frequencies_hz)
 
-print("Aufgabe 8: Abtastfrequenz")
-print(f"Mittelwert:                {mean_frequency_hz:.2f} Hz")
-print(f"Standardabweichung:        {std_frequency_hz:.2f} Hz")
+print("Aufgabe 8: Zeitintervall und Abtastfrequenz")
+print(f"{'Messgroesse':<26}{'Mittelwert':>15}{'Standardabweichung':>25}")
+print(
+    f"{'Zeitintervall [ms]':<26}"
+    f"{mean_interval_ms:>12.3f} ms"
+    f"{std_interval_ms:>20.3f} ms"
+)
+print(
+    f"{'Abtastfrequenz [Hz]':<26}"
+    f"{mean_frequency_hz:>12.3f} Hz"
+    f"{std_frequency_hz:>20.3f} Hz"
+)
