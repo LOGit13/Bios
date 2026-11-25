@@ -1,102 +1,60 @@
-from pathlib import Path
-
-import matplotlib.pyplot as plt
-import numpy as np
+from statistics import mean, stdev
 
 
-DATA_DIRECTORY = Path(__file__).parent
-DATASETS = (
-    ("Aufgabe 6", DATA_DIRECTORY / "Aufgabe6.txt"),
-    ("Aufgabe 9 (DataLogger)", DATA_DIRECTORY / "ACCdata.txt"),
+AUFGABE_8_DATEI = __file__.replace("plot_aufgabe9.py", "Aufgabe6.txt")
+AUFGABE_9_DATEI = __file__.replace("plot_aufgabe9.py", "ACCdata.txt")
+
+
+def berechne_abtaststatistik(dateipfad):
+    zeitstempel_ms = []
+    with open(dateipfad, encoding="utf-8") as datei:
+        for zeilennummer, zeile in enumerate(datei, start=1):
+            if not zeile.strip():
+                continue
+            werte = [float(wert) for wert in zeile.split()]
+            if len(werte) != 4:
+                raise ValueError(
+                    f"{dateipfad}, Zeile {zeilennummer}: "
+                    "erwartet werden vier Spalten (X, Y, Z, Zeit in ms)."
+                )
+            zeitstempel_ms.append(werte[3])
+
+    if len(zeitstempel_ms) < 3:
+        raise ValueError(f"{dateipfad} enthält zu wenige Messwerte.")
+
+    messintervalle_ms = [
+        spaeter - frueher
+        for frueher, spaeter in zip(zeitstempel_ms, zeitstempel_ms[1:])
+    ]
+    if any(intervall <= 0 for intervall in messintervalle_ms):
+        raise ValueError(f"Die Zeitstempel in {dateipfad} müssen streng ansteigen.")
+
+    frequenzen_hz = [1000 / intervall for intervall in messintervalle_ms]
+    return mean(frequenzen_hz), stdev(frequenzen_hz)
+
+
+aufgabe_8_mittelwert, aufgabe_8_abweichung = berechne_abtaststatistik(
+    AUFGABE_8_DATEI
+)
+aufgabe_9_mittelwert, aufgabe_9_abweichung = berechne_abtaststatistik(
+    AUFGABE_9_DATEI
 )
 
-
-def calculate_sampling_statistics(file_path):
-    data = np.loadtxt(file_path)
-    if data.ndim != 2 or data.shape[1] != 4:
-        raise ValueError(
-            f"{file_path.name} muss vier Spalten enthalten: X, Y, Z und Zeit in ms."
-        )
-    if len(data) < 3:
-        raise ValueError(f"{file_path.name} enthält zu wenige Messwerte.")
-
-    timestamps_ms = data[:, 3]
-    intervals_ms = np.diff(timestamps_ms)
-    if np.any(intervals_ms <= 0):
-        raise ValueError(
-            f"Die Zeitstempel in {file_path.name} müssen streng ansteigen."
-        )
-
-    frequencies_hz = 1000 / intervals_ms
-    duration_ms = timestamps_ms[-1] - timestamps_ms[0]
-    return {
-        "interval_count": len(intervals_ms),
-        "duration_seconds": duration_ms / 1000,
-        "frequencies_hz": frequencies_hz,
-        "mean_hz": np.mean(frequencies_hz),
-        "std_hz": np.std(frequencies_hz, ddof=1),
-        "overall_hz": len(intervals_ms) * 1000 / duration_ms,
-        "mean_interval_ms": np.mean(intervals_ms),
-        "std_interval_ms": np.std(intervals_ms, ddof=1),
-    }
-
-
-results = [
-    (label, calculate_sampling_statistics(file_path))
-    for label, file_path in DATASETS
-]
-
-for label, stats in results:
-    print(
-        f"{label}: {stats['interval_count']} Intervalle, "
-        f"{stats['duration_seconds']:.3f} s"
-    )
-    print(
-        f"  Abtastfrequenz: {stats['mean_hz']:.2f} "
-        f"+/- {stats['std_hz']:.2f} Hz"
-    )
-    print(
-        f"  Abtastintervall: {stats['mean_interval_ms']:.3f} "
-        f"+/- {stats['std_interval_ms']:.3f} ms"
-    )
-    print(f"  Gesamtrate: {stats['overall_hz']:.2f} Hz")
-
-earlier_mean_hz = results[0][1]["mean_hz"]
-logger_mean_hz = results[1][1]["mean_hz"]
-difference_hz = logger_mean_hz - earlier_mean_hz
-difference_percent = 100 * difference_hz / earlier_mean_hz
+print("Vergleich der Abtastfrequenzen")
+print(f"{'Messung':<24} | {'Mittelwert [Hz]':>15} | {'Abweichung [Hz]':>16}")
+print("-" * 62)
 print(
-    f"Differenz DataLogger zu Aufgabe 6: {difference_hz:+.2f} Hz "
-    f"({difference_percent:+.1f} %)"
+    f"{'Aufgabe 8':<24} | {aufgabe_8_mittelwert:>15.2f} | "
+    f"{aufgabe_8_abweichung:>16.2f}"
+)
+print(
+    f"{'Aufgabe 9 (DataLogger)':<24} | {aufgabe_9_mittelwert:>15.2f} | "
+    f"{aufgabe_9_abweichung:>16.2f}"
 )
 
-labels = [label for label, _ in results]
-means_hz = [stats["mean_hz"] for _, stats in results]
-stds_hz = [stats["std_hz"] for _, stats in results]
-
-fig, ax = plt.subplots(figsize=(9, 6))
-ax.errorbar(
-    labels,
-    means_hz,
-    yerr=stds_hz,
-    fmt="o",
-    capsize=8,
-    markersize=8,
-    color="tab:blue",
-    ecolor="tab:orange",
-    linewidth=2,
+differenz_hz = aufgabe_9_mittelwert - aufgabe_8_mittelwert
+differenz_prozent = 100 * differenz_hz / aufgabe_8_mittelwert
+print(
+    f"\nDifferenz der Mittelwerte (Aufgabe 9 - Aufgabe 8): "
+    f"{differenz_hz:+.2f} Hz ({differenz_prozent:+.1f} %)"
 )
-
-for index, (mean_hz, std_hz) in enumerate(zip(means_hz, stds_hz)):
-    ax.annotate(
-        f"{mean_hz:.2f} +/- {std_hz:.2f} Hz",
-        (index, mean_hz),
-        xytext=(10, 8),
-        textcoords="offset points",
-    )
-
-ax.set_title("Aufgabe 9 – Vergleich der Abtastfrequenzen")
-ax.set_ylabel("Abtastfrequenz [Hz] (Mittelwert +/- Standardabweichung)")
-ax.grid(axis="y", alpha=0.4)
-fig.tight_layout()
-plt.show()
