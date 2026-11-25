@@ -1,8 +1,12 @@
+import os
 from statistics import mean, stdev
 
 
-AUFGABE_8_DATEI = __file__.replace("plot_aufgabe9.py", "Aufgabe6.txt")
-AUFGABE_9_DATEI = __file__.replace("plot_aufgabe9.py", "ACCdata.txt")
+DATA_DIRECTORY = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "data")
+)
+AUFGABE_8_DATEI = os.path.join(DATA_DIRECTORY, "Aufgabe6.txt")
+AUFGABE_9_DATEI = os.path.join(DATA_DIRECTORY, "Aufgabe9_DataLogger.txt")
 
 
 def berechne_abtaststatistik(dateipfad):

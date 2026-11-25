@@ -1,8 +1,12 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-datei_pfad = __file__.replace("plot_aufgabe6.py", "Aufgabe6.txt")
+datei_pfad = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "data", "Aufgabe6.txt")
+)
 counts_pro_g = 512
 
 messdaten = np.loadtxt(datei_pfad)

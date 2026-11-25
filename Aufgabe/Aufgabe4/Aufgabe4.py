@@ -1,8 +1,12 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 
 # Letzte vier Sekunden der Messung 
-datei_pfad = __file__.replace("Aufgabe4.py", "aufgabe_4_a.txt")
+datei_pfad = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "data", "Aufgabe4.txt")
+)
 messdaten = np.loadtxt(datei_pfad)
 startzeit_ms = messdaten[-1, 3] - 4000
 messdaten = messdaten[messdaten[:, 3] >= startzeit_ms]

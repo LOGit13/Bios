@@ -1,7 +1,10 @@
+import os
 from statistics import mean, stdev
 
 
-DATA_FILE = __file__.replace("plot_aufgabe8.py", "Aufgabe6.txt")
+DATA_FILE = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "data", "Aufgabe6.txt")
+)
 
 with open(DATA_FILE, encoding="utf-8") as data_file:
     data = [
