@@ -45,14 +45,13 @@ aufgabe_9_mittelwert, aufgabe_9_abweichung = berechne_abtaststatistik(
 )
 
 print("Vergleich der Abtastfrequenzen")
-print(f"{'Messung':<24} | {'Mittelwert [Hz]':>15} | {'Abweichung [Hz]':>16}")
-print("-" * 62)
+print(f"{'Messung':<24}  {'Mittelwert [Hz]':>15}  {'Abweichung [Hz]':>16}")
 print(
-    f"{'Aufgabe 8':<24} | {aufgabe_8_mittelwert:>15.2f} | "
+    f"{'Aufgabe 8':<24}  {aufgabe_8_mittelwert:>15.2f}  "
     f"{aufgabe_8_abweichung:>16.2f}"
 )
 print(
-    f"{'Aufgabe 9 (DataLogger)':<24} | {aufgabe_9_mittelwert:>15.2f} | "
+    f"{'Aufgabe 9 (DataLogger)':<24}  {aufgabe_9_mittelwert:>15.2f}  "
     f"{aufgabe_9_abweichung:>16.2f}"
 )
 
